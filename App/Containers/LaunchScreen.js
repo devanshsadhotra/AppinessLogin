@@ -1,29 +1,73 @@
 import React, { Component } from 'react'
-import { ScrollView, Text, Image, View } from 'react-native'
+import {
+  View,
+  Platform,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,Button, ToastAndroid
+} from 'react-native';
+const authentication=require('../Themes/authentication.json')
 import { Images } from '../Themes'
 
 // Styles
 import styles from './Styles/LaunchScreenStyles'
 
 export default class LaunchScreen extends Component {
-  render () {
-    return (
-      <View style={styles.mainContainer}>
-        <Image source={Images.background} style={styles.backgroundImage} resizeMode='stretch' />
-        <ScrollView style={styles.container}>
-          <View style={styles.centered}>
-            <Image source={Images.launch} style={styles.logo} />
-          </View>
+  constructor(props){
+    super(props)
+    this.state={
+        username:'',
+        password:''
+    } 
+}
+goToEmployeedata(){
+  if((this.state.username.trim()!='')){
+    if((this.state.username== authentication.username) && (this.state.password == authentication.password)){
+        const { dispatch } = this.props.navigation;
+        dispatch({ type: 'Navigation/RESET', actions: [{ type: 'Navigate', routeName: 'EmployeeData' }], index: 0 })
+        ToastAndroid.show(authentication.loginSucsess, ToastAndroid.SHORT);
+    } 
+    else {
+        ToastAndroid.show(authentication.loginfailed, ToastAndroid.SHORT);
+    }
+}
+else{
+    ToastAndroid.show('Username cannot start with space', ToastAndroid.SHORT);
 
-          <View style={styles.section} >
-            <Image source={Images.ready} />
-            <Text style={styles.sectionText}>
-              This probably isn't what your app is going to look like. Unless your designer handed you this screen and, in that case, congrats! You're ready to ship. For everyone else, this is where you'll see a live preview of your fully functioning app using Ignite.
-            </Text>
-          </View>
+}
+}
+render() {
+    return ( 
+        <View style = {
+            styles.container
+        }>
+        <TextInput style={styles.input}
+        autoCapitalize="none"
+        onSubmitEditing={() => this.passwordInput.focus()}
+        autoCorrect={false}
+        keyboardType='email-address'
+        returnKeyType="next"
+        placeholder='Username'
+        placeholderTextColor='#000'
+        value={this.state.username}
+        onChangeText={username=>this.setState({username: username})} />
 
-        </ScrollView>
-      </View>
-    )
-  }
+    <TextInput style={styles.input}
+        returnKeyType="go"
+        ref={(input) => this.passwordInput = input}
+        placeholder='Password'
+        placeholderTextColor='#000'
+        secureTextEntry
+        value={this.state.password}
+        onChangeText={password=>this.setState({password: password})}  />
+        <Button
+        title="Login"
+        onPress={() =>
+          this.goToEmployeedata()
+        }
+      />
+        </View>
+    );
+      }
 }
